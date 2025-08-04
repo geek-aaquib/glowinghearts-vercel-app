@@ -65,8 +65,13 @@ function Sitemap() {
       <div>
         <SitemapHeading>Policies</SitemapHeading>
         <SitemapLinks>
+<<<<<<< HEAD
           <SitemapLink href="#">Terms of service</SitemapLink>
           <SitemapLink href="#">Privacy policy</SitemapLink>
+=======
+          <SitemapLink href="/termsandconditions">Terms of service</SitemapLink>
+          <SitemapLink href="/privacy">Privacy policy</SitemapLink>
+>>>>>>> external/main
         </SitemapLinks>
       </div>
     </>

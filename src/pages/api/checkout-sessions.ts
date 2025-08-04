@@ -52,6 +52,17 @@ export default async function handler(
         mode: 'payment',
         billing_address_collection: 'required',
         phone_number_collection: { enabled: true },
+<<<<<<< HEAD
+=======
+        custom_fields: [
+          {
+            key: 'full_name',
+            label: {type: 'custom', custom: 'Full Legal Name'},
+            type: 'text',
+            optional: false,
+          },
+        ],
+>>>>>>> external/main
         success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}&account=${charityKey}`,
         cancel_url: `${req.headers.origin}/raffles/${raffleID}`,
         metadata: {
