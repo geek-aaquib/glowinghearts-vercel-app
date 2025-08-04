@@ -177,7 +177,7 @@ export default function TicketPurchase({
               Location Permission Denied
             </h3>
             <p className="text-sm text-gray-700">
-              We couldn't access your location. This raffle is only available in Ontario. If you are currently in Ontario, you can confirm manually below.
+              We could not access your location. This raffle is only available in Ontario. If you are currently in Ontario, you can confirm manually below.
             </p>
             <div className="flex justify-center space-x-3">
               <button
