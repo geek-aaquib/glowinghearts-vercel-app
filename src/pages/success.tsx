@@ -5,6 +5,7 @@ import type { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
 import Stripe from 'stripe'
 import { SERVICE_URL } from '@/constants/raffleConstants'
+import { sendErrorAlert } from '@/app/lib/sendErrorAlert'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',
@@ -217,6 +218,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   const raffleID = session.metadata?.raffleID
   const obj_BuyInsStr = session.metadata?.obj_BuyIns || '[]';
+  const isAgeConfirmed = session.metadata?.isAgeConfirmed;
+  const isTCConfirmed = session.metadata?.isTCConfirmed;
   const obj_BuyIns = JSON.parse(obj_BuyInsStr); // this is now an array
   if (!raffleID) {
     throw new Error('raffleID missing in Stripe session metadata')
@@ -236,11 +239,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     VC_PlayerProvince: customer?.address?.state ?? '',
     VC_PlayerPostalCode: customer?.address?.postal_code ?? '',
     VC_PlayerPhone: customer?.phone,
-    obj_BuyIns: obj_BuyIns
+    obj_BuyIns: obj_BuyIns,
+    isAgeConfirmed: isAgeConfirmed,
+    isTCConfirmed: isTCConfirmed
   }
 
-  // Post to your backend Sale API and get ticket numbers
+  // // Post to your backend Sale API and get ticket numbers
+
   let ticketNumbers: string[] = []
+
   try {
     const response = await fetch(`${SERVICE_URL}/Sale/${raffleID}`, {
       method: 'POST',
@@ -256,7 +263,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     ticketNumbers = allTickets
   } catch (error) {
     console.error('Error posting purchase to backend:', error)
-    // Optionally handle fallback or pass error info to page props
+
+    await sendErrorAlert(
+      '⚠️⚠️⚠️ Glowing Hearts 5050 - Purchase Post Failure',
+      `An error occurred while posting purchase to backend for session ID: ${sessionId}\n\nError: ${error}\n\nPayload:\n${JSON.stringify(payload, null, 2)}`
+    )
+
+    // Redirect user to an error page with message
+    return {
+      redirect: {
+        destination: `/purchase-error?msg=${encodeURIComponent(
+          'An error occurred while posting the transaction to our backend. Please check your email for ticket confirmation or contact us at info@glowinghearts5050.com'
+        )}`,
+        permanent: false,
+      },
+    }
   }
 
   let bannerData: any = [];

@@ -33,12 +33,13 @@ function isInOntario(latitude: number, longitude: number): boolean {
 export default function TicketPurchase({
   tickets,
   raffleID,
-  charity_key,
+  charity_key
 }: TicketPurchaseProps) {
   const [counts, setCounts] = useState<Record<string, number>>(
     tickets.reduce((acc, t) => ({ ...acc, [t.Guid_BuyIn]: 0 }), {})
   );
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
+  const [isTCConfirmed, setisTCConfirmed] = useState(false);
   const [showManualConfirm, setShowManualConfirm] = useState(false);
 
   const increment = (Guid_BuyIn: string | number) =>
@@ -70,8 +71,11 @@ export default function TicketPurchase({
       raffleId: raffleID,
       total_price: total,
       charity_key,
+      isAgeConfirmed,
+      isTCConfirmed
     };
 
+    console.log(payload);
     const res = await fetch("/api/checkout-sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -93,7 +97,7 @@ export default function TicketPurchase({
 
   const handleCheckout = async () => {
     const selectedTickets = tickets.filter((t) => (counts[t.Guid_BuyIn] || 0) > 0);
-    if (selectedTickets.length === 0 || !isAgeConfirmed) return;
+    if (selectedTickets.length === 0 || !isAgeConfirmed || !isTCConfirmed) return;
 
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
@@ -161,12 +165,22 @@ export default function TicketPurchase({
         <span>I confirm that I am 18 years or older</span>
       </label>
 
+      <label className="flex items-center space-x-2 text-sm text-gray-700">
+        <input
+          type="checkbox"
+          checked={isTCConfirmed}
+          onChange={() => setisTCConfirmed((prev) => !prev)}
+          className="form-checkbox h-4 w-4 text-indigo-600"
+        />
+        <span>I confirm that I have accepted the Terms of use.</span>
+      </label>
+
       <button
         onClick={handleCheckout}
-        disabled={total === 0 || !isAgeConfirmed}
+        disabled={total === 0 || !isAgeConfirmed || !isTCConfirmed}
         className="w-full py-2 rounded bg-indigo-600 text-white cursor-pointer hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {total === 0 ? "Purchase Tickets" : "Checkout"}
+        {total === 0 || !isAgeConfirmed || !isTCConfirmed ? "Purchase Tickets" : "Checkout"}
       </button>
 
       {/* Manual Location Confirmation Modal */}

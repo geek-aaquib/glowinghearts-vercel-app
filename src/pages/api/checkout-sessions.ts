@@ -24,6 +24,8 @@ export default async function handler(
     }
     const raffleID = req.body.raffleId;
     const charityKey = req.body.charity_key;
+    const isAgeConfirmed = req.body.isAgeConfirmed;
+    const isTCConfirmed = req.body.isTCConfirmed;
     if (!tickets?.length) {
       return res.status(400).json({ error: 'No tickets selected' })
     }
@@ -55,7 +57,7 @@ export default async function handler(
         custom_fields: [
           {
             key: 'full_name',
-            label: {type: 'custom', custom: 'Full Legal Name'},
+            label: { type: 'custom', custom: 'Full Legal Name' },
             type: 'text',
             optional: false,
           },
@@ -64,6 +66,8 @@ export default async function handler(
         cancel_url: `${req.headers.origin}/raffles/${raffleID}`,
         metadata: {
           raffleID: raffleID,
+          isAgeConfirmed: isAgeConfirmed,
+          isTCConfirmed: isTCConfirmed,
           obj_BuyIns: JSON.stringify(obj_BuyIns),
         },
       }
@@ -77,10 +81,10 @@ export default async function handler(
     // console.log('✅ [checkout] Session created:', session.id)
     return res.status(200).json({ sessionId: session.id })
   } catch (err: any) {
-  console.error('❌ Stripe Error:', err);
+    console.error('❌ Stripe Error:', err);
 
-  return res.status(500).json({
-    error: err?.message || 'Internal server error',
-  });
-}
+    return res.status(500).json({
+      error: err?.message || 'Internal server error',
+    });
+  }
 }
