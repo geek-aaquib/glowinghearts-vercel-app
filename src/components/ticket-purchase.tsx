@@ -91,7 +91,7 @@ export default function TicketPurchase({
           (region_code === "ON" || data.region === "Ontario");
 
         // Basic VPN/Proxy detection
-        const isUsingVPN = vpn == true || proxy === true || tor === true || hosting === true || anonymous == true || true;
+        const isUsingVPN = vpn == true || proxy === true || tor === true || hosting === true || anonymous == true;
 
         const isBlocked = !isInOntario || isUsingVPN;
         // Cache with TTL (safe write)
