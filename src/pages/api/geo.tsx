@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // You can also hardcode your IP while testing if needed:
     // const ip = '8.8.8.8';
     // Normalize IPv6 localhost to IPv4 localhost
-    if (clientIp === "::1" || clientIp === "0:0:0:0:0:0:0:1") {
+    if (clientIp === "::1" || clientIp === "0:0:0:0:0:0:0:1" || clientIp === process.env.ALLOWED_IP) {
       clientIp = process.env.DUMMY_URL!;
     }
     const url = `${process.env.IP_FENCING}${clientIp}`;
