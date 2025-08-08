@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
 export interface TicketTier {
@@ -16,20 +16,6 @@ interface TicketPurchaseProps {
   charity_key: string;
 }
 
-function isInOntario(latitude: number, longitude: number): boolean {
-  const minLat = parseFloat(process.env.NEXT_PUBLIC_ONTARIO_MIN_LAT!);
-  const maxLat = parseFloat(process.env.NEXT_PUBLIC_ONTARIO_MAX_LAT!);
-  const minLng = parseFloat(process.env.NEXT_PUBLIC_ONTARIO_MIN_LNG!);
-  const maxLng = parseFloat(process.env.NEXT_PUBLIC_ONTARIO_MAX_LNG!);
-
-  return (
-    latitude >= minLat &&
-    latitude <= maxLat &&
-    longitude >= minLng &&
-    longitude <= maxLng
-  );
-}
-
 export default function TicketPurchase({
   tickets,
   raffleID,
@@ -40,7 +26,119 @@ export default function TicketPurchase({
   );
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isTCConfirmed, setisTCConfirmed] = useState(false);
-  const [showManualConfirm, setShowManualConfirm] = useState(false);
+  // const [showManualConfirm, setShowManualConfirm] = useState(false);
+
+  const [geoBlocked, setGeoBlocked] = useState(false);
+  const [geoReason, setGeoReason] = useState("");
+  const [checkingLocation, setCheckingLocation] = useState(true);
+  // const [geoBlocked, setGeoBlocked] = useState(false);
+  // const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkGeo = async () => {
+      const CACHE_KEY = "geo-checked";
+      const CACHE_TTL = 1000 * 10; // 1 hour
+
+      try {
+        // Guard: ensure client
+        if (typeof window === "undefined") {
+          setCheckingLocation(false);
+          return;
+        }
+        // Safe read from localStorage
+        let cachedStr: string | null = null;
+        try {
+          cachedStr = localStorage.getItem(CACHE_KEY);
+          console.log("geo cache raw:", cachedStr);
+        } catch (err) {
+          console.warn("localStorage read failed:", err);
+        }
+
+        // If cached and not expired, use it
+        if (cachedStr) {
+          try {
+            const parsed = JSON.parse(cachedStr);
+            if (parsed.expires && parsed.expires > Date.now()) {
+              setGeoBlocked(!!parsed.isBlocked);
+              setGeoReason(parsed.reason || "");
+              setCheckingLocation(false);
+              return;
+            } else {
+              // expired -> remove
+              try { localStorage.removeItem(CACHE_KEY); } catch { }
+            }
+          } catch (err) {
+            // invalid JSON stored (e.g. "Too Many Requests") — remove and continue
+            console.warn("Invalid geo cache, clearing it:", err);
+            try { localStorage.removeItem(CACHE_KEY); } catch { }
+          }
+        }
+
+        const res = await fetch("/api/geo");
+        const data = await res.json();
+        const {
+          country_code,
+          region_code,
+          vpn,          // Only some APIs provide this
+          proxy,
+          hosting,
+          tor,
+          anonymous
+        } = data;
+        // Basic Ontario check via region_code
+        const isInOntario =
+          country_code === "CA" &&
+          (region_code === "ON" || data.region === "Ontario");
+
+        // Basic VPN/Proxy detection
+        const isUsingVPN = vpn == true || proxy === true || tor === true || hosting === true || anonymous == true || true;
+
+        const isBlocked = !isInOntario || isUsingVPN;
+        // Cache with TTL (safe write)
+        // const reason = isBlocked
+        //   ? !isInOntario
+        //     ? "This raffle is only available to residents of Ontario."
+        //     : "VPN or proxy detected. Please disable it."
+        //   : "";
+
+        var reason = "";
+        if (isBlocked) {
+          if (!isInOntario) {
+            reason = "This raffle is only available to residents of Ontario.";
+          } else if (isUsingVPN) {
+            reason = "VPN or proxy detected. Please disable it.";
+          }
+          else{
+            reason = "Unusal IP Behaviour detected. Please refresh or use other browser or device."
+          }
+        }
+        const cacheObj = {
+          isBlocked,
+          reason,
+          timestamp: Date.now(),
+          expires: Date.now() + CACHE_TTL,
+        };
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
+        } catch (err) {
+          console.warn("localStorage write failed:", err);
+        }
+        setGeoBlocked(isBlocked);
+        setGeoReason(reason);
+      } catch (err) {
+        console.error("Geo check failed:", err);
+        setGeoBlocked(true); // Fallback to block if unknown
+        setGeoReason("Unable to verify your location.");
+      } finally {
+        setCheckingLocation(false);
+      }
+    };
+
+    checkGeo();
+  }, []);
+
+
+
 
   const increment = (Guid_BuyIn: string | number) =>
     setCounts((c) => ({ ...c, [Guid_BuyIn]: c[Guid_BuyIn] + 1 }));
@@ -75,7 +173,6 @@ export default function TicketPurchase({
       isTCConfirmed
     };
 
-    console.log(payload);
     const res = await fetch("/api/checkout-sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -99,27 +196,109 @@ export default function TicketPurchase({
     const selectedTickets = tickets.filter((t) => (counts[t.Guid_BuyIn] || 0) > 0);
     if (selectedTickets.length === 0 || !isAgeConfirmed || !isTCConfirmed) return;
 
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+    if (geoBlocked) {
+      alert(geoReason);
       return;
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        if (!isInOntario(latitude, longitude)) {
-          alert("This raffle is only available to residents of Ontario.");
-          return;
-        }
-        await proceedToStripe();
-      },
-      () => {
-        // Location denied or failed — show custom modal fallback
-        setShowManualConfirm(true);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+    await proceedToStripe();
   };
+
+
+  // old code
+  // return (
+  //   <div className="max-w-md mx-auto space-y-6">
+  //     <h2 className="text-2xl font-semibold text-gray-900 text-center">
+  //       Purchase Tickets
+  //     </h2>
+
+  //     {tickets.map((t) => (
+  //       <div key={t.Guid_BuyIn} className="flex items-center justify-between">
+  //         <span className="text-gray-800">
+  //           {t.Int_NumbTicket} tickets for ${t.Dec_Price}
+  //         </span>
+  //         <div className="flex items-center space-x-2">
+  //           <button
+  //             onClick={() => decrement(t.Guid_BuyIn)}
+  //             className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
+  //           >
+  //             −
+  //           </button>
+  //           <span className="w-6 text-center">{counts[t.Guid_BuyIn] || 0}</span>
+  //           <button
+  //             onClick={() => increment(t.Guid_BuyIn)}
+  //             className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
+  //           >
+  //             +
+  //           </button>
+  //         </div>
+  //       </div>
+  //     ))}
+
+  //     <div className="flex items-center justify-between">
+  //       <span className="font-bold text-gray-900">Total:</span>
+  //       <span className="font-bold text-gray-900">${total}</span>
+  //     </div>
+
+  //     <label className="flex items-center space-x-2 text-sm text-gray-700">
+  //       <input
+  //         type="checkbox"
+  //         checked={isAgeConfirmed}
+  //         onChange={() => setIsAgeConfirmed((prev) => !prev)}
+  //         className="form-checkbox h-4 w-4 text-indigo-600"
+  //       />
+  //       <span>I confirm that I am 18 years or older</span>
+  //     </label>
+
+  //     <label className="flex items-center space-x-2 text-sm text-gray-700">
+  //       <input
+  //         type="checkbox"
+  //         checked={isTCConfirmed}
+  //         onChange={() => setisTCConfirmed((prev) => !prev)}
+  //         className="form-checkbox h-4 w-4 text-indigo-600"
+  //       />
+  //       <span>I confirm that I have accepted the Terms of use.</span>
+  //     </label>
+
+  //     <button
+  //       onClick={handleCheckout}
+  //       disabled={total === 0 || !isAgeConfirmed || !isTCConfirmed}
+  //       className="w-full py-2 rounded bg-indigo-600 text-white cursor-pointer hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+  //     >
+  //       {total === 0 || !isAgeConfirmed || !isTCConfirmed ? "Purchase Tickets" : "Checkout"}
+  //     </button>
+
+  //     {/* Manual Location Confirmation Modal */}
+  //     {showManualConfirm && (
+  //       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  //         <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm space-y-4 text-center">
+  //           <h3 className="text-lg font-semibold text-gray-900">
+  //             Location Permission Denied
+  //           </h3>
+  //           <p className="text-sm text-gray-700">
+  //             We could not access your location. This raffle is only available in Ontario. If you are currently in Ontario, you can confirm manually below.
+  //           </p>
+  //           <div className="flex justify-center space-x-3">
+  //             <button
+  //               onClick={async () => {
+  //                 setShowManualConfirm(false);
+  //                 await proceedToStripe();
+  //               }}
+  //               className="px-4 py-2 bg-rose-400 text-white rounded hover:bg-green-400"
+  //             >
+  //               I am in Ontario
+  //             </button>
+  //             <button
+  //               onClick={() => setShowManualConfirm(false)}
+  //               className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+  //             >
+  //               Cancel
+  //             </button>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     )}
+  //   </div>
+  // );
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -127,92 +306,72 @@ export default function TicketPurchase({
         Purchase Tickets
       </h2>
 
-      {tickets.map((t) => (
-        <div key={t.Guid_BuyIn} className="flex items-center justify-between">
-          <span className="text-gray-800">
-            {t.Int_NumbTicket} tickets for ${t.Dec_Price}
-          </span>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => decrement(t.Guid_BuyIn)}
-              className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
-            >
-              −
-            </button>
-            <span className="w-6 text-center">{counts[t.Guid_BuyIn] || 0}</span>
-            <button
-              onClick={() => increment(t.Guid_BuyIn)}
-              className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
-            >
-              +
-            </button>
+      {checkingLocation ?
+        (
+          <p className="text-center text-gray-500">Checking your location...</p>
+        ) : geoBlocked ? (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {geoReason}
           </div>
-        </div>
-      ))}
+        ) : (
+          <>
+            {tickets.map((t) => (
+              <div key={t.Guid_BuyIn} className="flex items-center justify-between">
+                <span className="text-gray-800">
+                  {t.Int_NumbTicket} tickets for ${t.Dec_Price}
+                </span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => decrement(t.Guid_BuyIn)}
+                    className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
+                  >
+                    −
+                  </button>
+                  <span className="w-6 text-center">{counts[t.Guid_BuyIn] || 0}</span>
+                  <button
+                    onClick={() => increment(t.Guid_BuyIn)}
+                    className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
 
-      <div className="flex items-center justify-between">
-        <span className="font-bold text-gray-900">Total:</span>
-        <span className="font-bold text-gray-900">${total}</span>
-      </div>
-
-      <label className="flex items-center space-x-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          checked={isAgeConfirmed}
-          onChange={() => setIsAgeConfirmed((prev) => !prev)}
-          className="form-checkbox h-4 w-4 text-indigo-600"
-        />
-        <span>I confirm that I am 18 years or older</span>
-      </label>
-
-      <label className="flex items-center space-x-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          checked={isTCConfirmed}
-          onChange={() => setisTCConfirmed((prev) => !prev)}
-          className="form-checkbox h-4 w-4 text-indigo-600"
-        />
-        <span>I confirm that I have accepted the Terms of use.</span>
-      </label>
-
-      <button
-        onClick={handleCheckout}
-        disabled={total === 0 || !isAgeConfirmed || !isTCConfirmed}
-        className="w-full py-2 rounded bg-indigo-600 text-white cursor-pointer hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {total === 0 || !isAgeConfirmed || !isTCConfirmed ? "Purchase Tickets" : "Checkout"}
-      </button>
-
-      {/* Manual Location Confirmation Modal */}
-      {showManualConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm space-y-4 text-center">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Location Permission Denied
-            </h3>
-            <p className="text-sm text-gray-700">
-              We could not access your location. This raffle is only available in Ontario. If you are currently in Ontario, you can confirm manually below.
-            </p>
-            <div className="flex justify-center space-x-3">
-              <button
-                onClick={async () => {
-                  setShowManualConfirm(false);
-                  await proceedToStripe();
-                }}
-                className="px-4 py-2 bg-rose-400 text-white rounded hover:bg-green-400"
-              >
-                I am in Ontario
-              </button>
-              <button
-                onClick={() => setShowManualConfirm(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-gray-900">Total:</span>
+              <span className="font-bold text-gray-900">${total}</span>
             </div>
-          </div>
-        </div>
-      )}
+
+            <label className="flex items-center space-x-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={isAgeConfirmed}
+                onChange={() => setIsAgeConfirmed((prev) => !prev)}
+                className="form-checkbox h-4 w-4 text-indigo-600"
+              />
+              <span>I confirm that I am 18 years or older</span>
+            </label>
+
+            <label className="flex items-center space-x-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={isTCConfirmed}
+                onChange={() => setisTCConfirmed((prev) => !prev)}
+                className="form-checkbox h-4 w-4 text-indigo-600"
+              />
+              <span>I confirm that I have accepted the Terms of use.</span>
+            </label>
+
+            <button
+              onClick={handleCheckout}
+              disabled={total === 0 || !isAgeConfirmed || !isTCConfirmed}
+              className="w-full py-2 rounded bg-indigo-600 text-white cursor-pointer hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {total === 0 || !isAgeConfirmed || !isTCConfirmed ? "Purchase Tickets" : "Checkout"}
+            </button>
+          </>
+        )}
     </div>
   );
 }

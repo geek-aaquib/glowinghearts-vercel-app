@@ -197,7 +197,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const accountId = ctx.query.account as string
 
 
-  if (!sessionId) {
+  if (!sessionId || !accountId) {
     return {
       notFound: true,
     }
