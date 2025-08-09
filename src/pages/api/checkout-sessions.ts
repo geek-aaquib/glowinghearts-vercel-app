@@ -47,6 +47,7 @@ export default async function handler(
       Int_PackageCount: t.quantity
     }))
     // Create the Checkout Session
+    
     const session = await stripe.checkout.sessions.create(
       {
         payment_method_types: ['card'],
@@ -78,7 +79,6 @@ export default async function handler(
     )
 
 
-    // console.log('✅ [checkout] Session created:', session.id)
     return res.status(200).json({ sessionId: session.id })
   } catch (err: any) {
     console.error('❌ Stripe Error:', err);

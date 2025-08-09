@@ -49,8 +49,10 @@ export default function RafflePage({ params }: PageProps) {
     obj_BuyIns,
     obj_Prizes,
     Int_DrawStatus,
-    VC_CharityKey
+    VC_CharityKey,
+VC_LicenseNumb
   } = raffleData;
+  console.log(raffleData)
   // console.log(VC_CharityKey)
   const { VC_BannerLocation } = bannerData?.[0]?.obj_Banner?.[0];
 
@@ -144,19 +146,19 @@ export default function RafflePage({ params }: PageProps) {
               <dl className="mx-auto grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 bg-gray-900/5 px-4 py-2 sm:px-6 xl:px-8 rounded-xl">
                   <dt className="text-sm font-medium text-gray-500">Licence #</dt>
-                  <dd className="w-full flex-none text-xl font-medium tracking-tight text-gray-900">736570</dd>
+                  <dd className="w-full flex-none text-xl font-medium tracking-tight text-gray-900">{VC_LicenseNumb}</dd>
                 </div>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 bg-gray-900/5 px-4 py-2 sm:px-6 xl:px-8 rounded-xl">
                   <dt className="text-sm font-medium text-gray-500">Start Date</dt>
-                  <dd className="w-full flex-none text-xl font-medium tracking-tight text-gray-900">{format(new Date(Dt_SalesOpen), 'dd MMM yyyy')}</dd>
+                  <dd className="w-full flex-none text-lg font-medium tracking-tight text-gray-900">{format(new Date(Dt_SalesOpen), 'dd MMM yyyy h:mm a')}</dd>
                 </div>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 bg-gray-900/5 px-4 py-2 sm:px-6 xl:px-8 rounded-xl">
                   <dt className="text-sm font-medium text-gray-500">Draw Date</dt>
-                  <dd className="w-full flex-none text-xl font-medium tracking-tight text-gray-900">{format(new Date(Dt_SalesClose), 'dd MMM yyyy')}</dd>
+                  <dd className="w-full flex-none text-lg font-medium tracking-tight text-gray-900">{format(new Date(Dt_SalesClose), 'dd MMM yyyy h:mm a')}</dd>
                 </div>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 bg-gray-900/5 px-4 py-2 sm:px-6 xl:px-8 rounded-xl">
                   <dt className="text-sm font-medium text-gray-500">Draw Location</dt>
-                  <dd className="w-full flex-none text-xl font-medium tracking-tight text-gray-900">{VC_RaffleLocation}</dd>
+                  <dd className="w-full flex-none text-md font-medium tracking-tight text-gray-900">{VC_RaffleLocation}</dd>
                 </div>
               </dl>
 

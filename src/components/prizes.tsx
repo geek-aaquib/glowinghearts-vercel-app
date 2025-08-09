@@ -1,12 +1,13 @@
 // components/PrizesTable.tsx
 import React from 'react'
+import {format} from 'date-fns';
 
 export interface Prize {
-  order: number
+  Guid_PrizeId: number
   Dec_Value: string
   VC_Description: string
   Dt_Draw: string
-  winnerId: string
+  Guid_TicketId: string
 }
 
 interface PrizesTableProps {
@@ -19,10 +20,17 @@ function formatDate(dateString: string) {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+
   })
 }
 
+
+
 export default function PrizesTable({ prizes }: PrizesTableProps) {
+  console.log(prizes)
   return (
     <div className="px-2">
       <div className="-mx-4 mt-8 sm:-mx-0 overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
@@ -57,7 +65,7 @@ export default function PrizesTable({ prizes }: PrizesTableProps) {
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
             {prizes.map((p) => (
-              <tr key={p.order}>
+              <tr key={p.Guid_PrizeId}>
                 <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                   {/* Mobile stacked */}
                   <dl className="lg:hidden">
@@ -66,7 +74,7 @@ export default function PrizesTable({ prizes }: PrizesTableProps) {
                     <dt className="sr-only">Description</dt>
                     <dd className="mt-1 text-gray-500 truncate">$ {p.VC_Description}</dd>
                     <dt className="sr-only">Date</dt>
-                    <dd className="mt-1 text-gray-400 text-xs truncate">{formatDate(p.Dt_Draw)}</dd>
+                    <dd className="mt-1 text-gray-400 text-xs truncate">{format (new Date(p.Dt_Draw), 'MMMM d, yyyy h:mm a')}</dd>
                   </dl>
                   {/* Desktop title only */}
                   <div className="hidden lg:block">
@@ -77,10 +85,10 @@ export default function PrizesTable({ prizes }: PrizesTableProps) {
                   {p.VC_Description}
                 </td>
                 <td className="hidden lg:table-cell px-3 py-4 text-sm text-gray-500">
-                  {formatDate(p.Dt_Draw)}
+                  {format( new Date(p.Dt_Draw), 'MMMM d, yyyy h:mm a')}
                 </td>
                 <td className="px-3 py-4 text-sm text-gray-500">
-                  {p.winnerId || 'TBD'}
+                  {p?.Guid_TicketId || 'TBD'}
                 </td>
               </tr>
             ))}
