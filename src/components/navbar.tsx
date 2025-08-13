@@ -10,13 +10,13 @@ import { motion } from 'framer-motion'
 import { Link } from './link'
 import { Logo } from './logo'
 import { PlusGrid, PlusGridItem, PlusGridRow } from './plus-grid'
-
+import logo from "@/app/media/Logo.svg"
+import Image from 'next/image'
 const links = [
   { href: '/#Features', label: 'About' },
-  { href: '/how-it-works', label: 'How It Works' },
+  { href: '/how-it-works', label: 'How it works' },
   { href: '/contact-us', label: 'Contact Us' },
   { href: '/raffles', label: 'Raffles' },
-  { href: '/login', label: 'Login' },
 ]
 
 function DesktopNav() {
@@ -84,7 +84,8 @@ export function Navbar({ banner }: { banner?: React.ReactNode }) {
           <div className="relative flex gap-6">
             <PlusGridItem className="py-3">
               <Link href="/" title="Home">
-                <Logo className="h-9" />
+                {/* <Logo className="h-9" /> */}
+                <Image src={logo} alt="Glowing Hearts Fundraising" style={{width: 150, height: 100}}></Image>
               </Link>
             </PlusGridItem>
             {banner && (

@@ -50,10 +50,9 @@ export default function RafflePage({ params }: PageProps) {
     obj_Prizes,
     Int_DrawStatus,
     VC_CharityKey,
-VC_LicenseNumb
+    VC_LicenseNumb
   } = raffleData;
-  console.log(raffleData)
-  // console.log(VC_CharityKey)
+
   const { VC_BannerLocation } = bannerData?.[0]?.obj_Banner?.[0];
 
   return (
@@ -81,8 +80,9 @@ VC_LicenseNumb
             </div>
 
             {/* Raffle details */}
-            {Int_DrawStatus === 2 && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
-              <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
+            {Int_DrawStatus === 2  && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
+              {new Date(Dt_SalesOpen) <= new Date() && <div>
+                <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
                 {/* Big raised amount */}
                 <p className="text-5xl font-extrabold tracking-tight sm:text-6xl animate-pulse [animation-duration:1s] text-[#b060ff]">
                   $<AnimatedNumber end={Dec_MoneyRaised} decimals={0} />
@@ -107,18 +107,49 @@ VC_LicenseNumb
                   </p>
 
                   {/* Smaller “Jackpot” label */}
-                  <p className="mt-2 text-2xl font-bold sm:text-3xl">
+                  <div className="mt-2 text-2xl font-bold sm:text-3xl">
                     <CountdownTimer endDate={Dt_SalesClose} />
-                  </p>
+                  </div>
                 </div>
               </div>
 
               {/* Ticket Purchase */}
               <div className="mt-10 border-t border-gray-200 pt-10">
-                <TicketPurchase tickets={obj_BuyIns} raffleID={raffleId} charity_key={VC_CharityKey}/>
+                <TicketPurchase tickets={obj_BuyIns} raffleID={raffleId} charity_key={VC_CharityKey} startDate={Dt_SalesOpen} endDate={Dt_SalesClose} />
               </div>
-            </div> }
-            {Int_DrawStatus !== 2 && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
+              </div>}
+
+              {new Date(Dt_SalesOpen) > new Date() && <div className="mt-2 text-center text-2xl font-bold sm:text-3xl">
+                RAFFLE NOT YET STARTED
+              </div>}
+
+
+            </div>}
+            {Int_DrawStatus === 1 && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
+              <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
+                {/* Big raised amount */}
+                <p className="text-5xl font-extrabold tracking-tight sm:text-6xl animate-pulse [animation-duration:1s] text-[#b060ff]">
+                  $<AnimatedNumber end={isNaN(Dec_MoneyRaised) || Dec_MoneyRaised == null ? 0 : Dec_MoneyRaised} decimals={0} />
+                </p>
+
+                {/* Smaller “Jackpot” label */}
+                <p className="mt-2 text-2xl font-bold text-gray-600 sm:text-3xl">
+                  Amount Raised
+                </p>
+
+              </div>
+              {/* Ticket Sales End Time */}
+              <div className="mt-10 border-t border-gray-200 pt-10">
+                <TicketPurchase tickets={obj_BuyIns} raffleID={raffleId} charity_key={VC_CharityKey} startDate={Dt_SalesOpen} endDate={Dt_SalesClose} />
+                <div className="text-center max-w-xs mx-auto">
+                  <p className="text-xl font-bold tracking-tight text-gray-900">
+                    Raffle Not Started
+                  </p>
+                </div>
+              </div>
+            </div>}
+
+            {(Int_DrawStatus === 3 || Int_DrawStatus === 4 || Int_DrawStatus === 5) && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
               <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
                 {/* Big raised amount */}
                 <p className="text-5xl font-extrabold tracking-tight sm:text-6xl animate-pulse [animation-duration:1s] text-[#b060ff]">
@@ -135,13 +166,19 @@ VC_LicenseNumb
               <div className="mt-10 border-t border-gray-200 pt-10">
                 <div className="text-center max-w-xs mx-auto">
                   <p className="text-xl font-bold tracking-tight text-gray-900">
-                    Ticket Sales Ended
+                    Raffle Sales Completed
                   </p>
                 </div>
               </div>
-            </div> }
+            </div>}
 
-            <div className="mx-auto mt-16 w-full max-w-2xl lg:col-span-5 lg:mt-0 lg:max-w-none">
+            {Int_DrawStatus === 6 && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
+              <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
+                RAFFLE ON HOLD. The Raffle details cannot be retrieved at the moment.
+              </div>
+            </div>}
+
+            {Int_DrawStatus !== 6 && <div className="mx-auto mt-16 w-full max-w-2xl lg:col-span-5 lg:mt-0 lg:max-w-none">
               {/* Raffle Details */}
               <dl className="mx-auto grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 bg-gray-900/5 px-4 py-2 sm:px-6 xl:px-8 rounded-xl">
@@ -254,7 +291,7 @@ VC_LicenseNumb
                   </TabPanel>
                 </TabPanels>
               </TabGroup>
-            </div>
+            </div>}
           </div>
         </div>
       </div>

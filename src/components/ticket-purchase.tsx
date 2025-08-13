@@ -14,12 +14,16 @@ interface TicketPurchaseProps {
   tickets: TicketTier[];
   raffleID: string;
   charity_key: string;
+  startDate?: string; // Optional, if needed for validation
+  endDate?: string; // Optional, if needed for validation
 }
 
 export default function TicketPurchase({
   tickets,
   raffleID,
-  charity_key
+  charity_key,
+  startDate,
+  endDate
 }: TicketPurchaseProps) {
   const [counts, setCounts] = useState<Record<string, number>>(
     tickets.reduce((acc, t) => ({ ...acc, [t.Guid_BuyIn]: 0 }), {})
@@ -170,7 +174,9 @@ export default function TicketPurchase({
       total_price: total,
       charity_key,
       isAgeConfirmed,
-      isTCConfirmed
+      isTCConfirmed,
+      startDate,
+      endDate
     };
 
     const res = await fetch("/api/checkout-sessions", {

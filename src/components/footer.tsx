@@ -5,6 +5,8 @@ import { Gradient } from './gradient'
 import { Link } from './link'
 import { Logo } from './logo'
 import { Subheading } from './text'
+import logo from "@/app/media/Logo.svg"
+import Image from 'next/image'
 
 function CallToAction() {
   return (
@@ -59,7 +61,7 @@ function Sitemap() {
         <SitemapHeading>Platform</SitemapHeading>
         <SitemapLinks>
           <SitemapLink href="/raffles">Raffles</SitemapLink>
-          <SitemapLink href="/contact-us">Contact s</SitemapLink>
+          <SitemapLink href="/contact-us">Contact Us</SitemapLink>
         </SitemapLinks>
       </div>
       <div>
@@ -152,7 +154,7 @@ export function Footer() {
               <div className="grid grid-cols-3 gap-y-10 pb-6 lg:grid-cols-5 lg:gap-8">
                 <div className="col-span-2 flex">
                   <PlusGridItem className="pt-6 lg:pb-6">
-                    <Logo className="h-9" />
+                    <Image src={logo} alt="Glowing Hearts Fundraising" style={{width: 150, height: 100}}></Image>
                   </PlusGridItem>
                 </div>
                 <div className="col-span-3 grid grid-cols-3 gap-x-8 gap-y-12 lg:col-span-3 lg:grid-cols-subgrid lg:pt-6">
