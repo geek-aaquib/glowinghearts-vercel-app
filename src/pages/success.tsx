@@ -201,7 +201,7 @@ export default function SuccessPage() {
             Thank you for your purchase!
           </h1>
           <p className="text-center text-gray-700">
-            Your order{' '}
+            Your Order Number (Purchase id) {' '}
             <span className="font-mono font-bold text-black">
               {orderNumber}
             </span>{' '}
@@ -219,10 +219,6 @@ export default function SuccessPage() {
               <div>
                 <dt className="text-sm text-gray-600">Raffle ID</dt>
                 <dd className="font-mono text-gray-900">{raffleID || '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-600">Purchase ID</dt>
-                <dd className="font-mono text-gray-900">{orderNumber}</dd>
               </div>
               <div>
                 <dt className="text-sm text-gray-600">Name</dt>

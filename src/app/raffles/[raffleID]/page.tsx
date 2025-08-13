@@ -1,6 +1,5 @@
 'use client'
 
-import { useRaffleDetails } from '@/app/hooks/useRaffleDetails'
 import useRaffleREST from '@/app/hooks/useRaffleREST'
 import useBannerREST from '@/app/hooks/useBannerRest'
 import dynamic from 'next/dynamic'
