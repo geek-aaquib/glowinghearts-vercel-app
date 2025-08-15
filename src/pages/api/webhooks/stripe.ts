@@ -118,6 +118,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const obj_BuyIns = safeJson(session.metadata?.obj_BuyIns, [])
       const isAgeConfirmed = session.metadata?.isAgeConfirmed
       const isTCConfirmed = session.metadata?.isTCConfirmed
+      const client_ip = session.metadata?.client_ip;
+      const client_geo = session.metadata?.clien_geo;
       // Custom field "full_name" added during checkout session creation
       const fullName =
         session.custom_fields?.find(f => f.key === 'full_name')?.text?.value ||
@@ -139,9 +141,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         VC_PlayerPhone: customer?.phone,
         Int_AgeVerified: isAgeConfirmed ? 1 : 0,
         Int_TC_Confirm: isTCConfirmed ? 1 : 0,
+        VC_PurchaseIP: client_ip,
+        VC_GeoLocation: client_geo,
         obj_BuyIns,
       }
 
+      console.log('payload is.........'+payload)
       // ---------- Fulfill on your backend (this should send email + return tickets) ----------
       console.log(`📨 POST ${SERVICE_URL}/Sale/${raffleID}`)
       const saleRes = await fetch(`${SERVICE_URL}/Sale/${raffleID}`, {

@@ -30,18 +30,20 @@ export default function TicketPurchase({
   );
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isTCConfirmed, setisTCConfirmed] = useState(false);
-  // const [showManualConfirm, setShowManualConfirm] = useState(false);
 
   const [geoBlocked, setGeoBlocked] = useState(false);
   const [geoReason, setGeoReason] = useState("");
   const [checkingLocation, setCheckingLocation] = useState(true);
-  // const [geoBlocked, setGeoBlocked] = useState(false);
-  // const [loading, setLoading] = useState(true);
+  const [client_ip, setClientIp] = useState<string | null>(null);
+  const [client_geo, setClientGeo] = useState<string | null>(null);
+
+
+
 
   useEffect(() => {
     const checkGeo = async () => {
       const CACHE_KEY = "geo-checked";
-      const CACHE_TTL = 1000 * 10; // 1 hour
+      const CACHE_TTL = 1000 * 10; // 10 minutes
 
       try {
         // Guard: ensure client
@@ -87,8 +89,15 @@ export default function TicketPurchase({
           proxy,
           hosting,
           tor,
-          anonymous
+          anonymous,
+          ip,
+          region,
+          country,
+          city
         } = data;
+
+        setClientIp(ip);
+        setClientGeo(city + ' ' + region + ' ' + country);
         // Basic Ontario check via region_code
         const isInOntario =
           country_code === "CA" &&
@@ -99,11 +108,6 @@ export default function TicketPurchase({
 
         const isBlocked = !isInOntario || isUsingVPN;
         // Cache with TTL (safe write)
-        // const reason = isBlocked
-        //   ? !isInOntario
-        //     ? "This raffle is only available to residents of Ontario."
-        //     : "VPN or proxy detected. Please disable it."
-        //   : "";
 
         var reason = "";
         if (isBlocked) {
@@ -112,7 +116,7 @@ export default function TicketPurchase({
           } else if (isUsingVPN) {
             reason = "VPN or proxy detected. Please disable it.";
           }
-          else{
+          else {
             reason = "Unusal IP Behaviour detected. Please refresh or use other browser or device."
           }
         }
@@ -176,7 +180,9 @@ export default function TicketPurchase({
       isAgeConfirmed,
       isTCConfirmed,
       startDate,
-      endDate
+      endDate,
+      client_ip,
+      client_geo
     };
 
     const res = await fetch("/api/checkout-sessions", {

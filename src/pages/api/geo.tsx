@@ -15,13 +15,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       clientIp = process.env.DUMMY_URL!;
     }
     const url = `${process.env.IP_FENCING}${clientIp}`;
-    console.log(url);
     const geoRes = await fetch(url);
     // console.log(geoRes)
     const data = await geoRes.json();
-    // console.log(data)
+    console.log(data)
     const relevant = {
       ip: data.ip,
+      country: data.country,
       country_code: data.country_code,
       region: data.region,
       region_code: data.region_code,

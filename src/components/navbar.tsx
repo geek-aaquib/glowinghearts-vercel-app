@@ -8,7 +8,6 @@ import {
 import { Bars2Icon } from '@heroicons/react/24/solid'
 import { motion } from 'framer-motion'
 import { Link } from './link'
-import { Logo } from './logo'
 import { PlusGrid, PlusGridItem, PlusGridRow } from './plus-grid'
 import logo from '@/app/media/logo.svg'
 import Image from 'next/image'

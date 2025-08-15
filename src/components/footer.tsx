@@ -3,7 +3,6 @@ import { Button } from './button'
 import { Container } from './container'
 import { Gradient } from './gradient'
 import { Link } from './link'
-import { Logo } from './logo'
 import { Subheading } from './text'
 import logo from "@/app/media/logo.svg"
 import Image from 'next/image'
