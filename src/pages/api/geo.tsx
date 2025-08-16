@@ -16,9 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const url = `${process.env.IP_FENCING}${clientIp}`;
     const geoRes = await fetch(url);
-    // console.log(geoRes)
     const data = await geoRes.json();
-    console.log(data)
     const relevant = {
       ip: data.ip,
       country: data.country,

@@ -30,7 +30,6 @@ function formatDate(dateString: string) {
 
 
 export default function PrizesTable({ prizes }: PrizesTableProps) {
-  console.log(prizes)
   return (
     <div className="px-2">
       <div className="-mx-4 mt-8 sm:-mx-0 overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
