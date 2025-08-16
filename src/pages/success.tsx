@@ -7,7 +7,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import logo from '@/app/icon.svg'
 
 /**
  * Types for the API payload we return from /api/stripe/session/[id]
@@ -109,7 +108,7 @@ export default function SuccessPage() {
           <meta name="robots" content="noindex,nofollow" />
           <link
             rel="icon"
-            href={logo}// Path to your custom favicon
+            href="/logos/icon.svg"// Path to your custom favicon
             type="image/svg+xml"
           />
         </Head>
@@ -137,7 +136,7 @@ export default function SuccessPage() {
           <meta name="robots" content="noindex,nofollow" />
           <link
             rel="icon"
-            href={logo} // Path to your custom favicon
+            href="/logos/icon.svg" // Path to your custom favicon
             type="image/svg+xml"
           />
         </Head>
@@ -186,7 +185,7 @@ export default function SuccessPage() {
         <meta name="description" content="Thank you for your purchase!" />
         <link
             rel="icon"
-            href={logo} // Path to your custom favicon
+            href="/logos/icon.svg"// Path to your custom favicon
             type="image/svg+xml"
           />
       </Head>
