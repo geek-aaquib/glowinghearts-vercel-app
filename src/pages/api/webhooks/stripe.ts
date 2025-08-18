@@ -52,33 +52,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const raffleID = session.metadata?.raffleID
     if (!raffleID) return res.status(400).send('Missing raffleID in session.metadata')
 
-      /**
-       * (Optional but recommended) Guard against late payments:
-       * Check with your backend if sales are already closed.
-       * If yes, refund and acknowledge (but do not fulfill).
-       */
-      try {
-        const rRes = await fetch(`${SERVICE_URL}/Raffle/${raffleID}`)
-        const rData = await rRes.json()
-        const salesEndStr = rData?.obj_RaffleData?.Dt_SalesClose
-        const salesEnd = salesEndStr ? new Date(salesEndStr).getTime() : 0
-        if (salesEnd && Date.now() >= salesEnd) {
-          const piId = typeof session.payment_intent === 'string'
-            ? session.payment_intent
-            : session.payment_intent?.id
-          if (piId) {
-            await stripe.refunds.create(
-              { payment_intent: piId, reason: 'requested_by_customer' },
-              { stripeAccount: connectedAccountId } // Connect refund
-            )
-            console.log(`⛔️ Post-close payment refunded for session ${session.id}`)
-          }
-          return res.json({ received: true, ignored: 'after_close' })
-        }
-      } catch (e) {
-        console.warn('⚠️ salesEnd check failed; proceeding with fulfillment.')
-      }
-
       // ---------- Build payload for your backend Save Purchase API ----------
       const Guid_PurchaseId = session.id // idempotent: use session.id
       const customer = session.customer_details
