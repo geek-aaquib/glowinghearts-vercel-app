@@ -11,11 +11,12 @@ import { AnimatedNumber } from '@/components/animated-number'
 import TicketPurchase from '@/components/ticket-purchase'
 import PrizesTable from '@/components/prizes'
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import RafflePageSkeleton from '@/components/RaffleListShimmer'
 import { FacebookIcon, FacebookShareButton, TwitterIcon, TwitterShareButton, WhatsappIcon, WhatsappShareButton } from 'next-share'
 import { SERVICE_URL } from '@/constants/raffleConstants'
+import  getCurrentUrl from '@/utils/getCurrentUrl'
 
 const CountdownTimer = dynamic(() => import('@/components/countdown-timer'), { ssr: false })
 
@@ -29,6 +30,8 @@ export default function RafflePage({ params }: PageProps) {
   // const { raffles, loading, error } = useRaffleDetails(raffleId);
   const { restData, isLoading, isError } = useRaffleREST(raffleId);
   const { charityData: bannerData, isLoading: loadingBanner } = useBannerREST(raffleId);
+
+  const currentUrl = getCurrentUrl();
 
   // if (isLoading || loadingBanner) return <p>Loading...</p>;
   if (isLoading || loadingBanner) return <RafflePageSkeleton />
@@ -237,15 +240,15 @@ export default function RafflePage({ params }: PageProps) {
                 </ul> */}
                 <h3 className="text-sm font-medium text-gray-900 mt-10">Share</h3>
                 <div className="mt-4 flex items-center space-x-4">
-                  <FacebookShareButton url={`${SERVICE_URL}/raffles/${raffleId}`} quote={`Check out this raffle: ${VC_RaffleName}`}>
+                  <FacebookShareButton url={`${currentUrl}`} quote={`Check out this raffle: ${VC_RaffleName}`} hashtag={'50/50 Win, Win'} windowWidth={1920} windowHeight={1080}>
                     <FacebookIcon size={32} round />
                   </FacebookShareButton>
 
-                  <TwitterShareButton url={`${SERVICE_URL}/raffles/${raffleId}`} title={`Join this raffle: ${VC_RaffleName}`}>
+                  <TwitterShareButton url={`${currentUrl}`} title={`Join this raffle: ${VC_RaffleName}`} windowWidth={1920} windowHeight={1080}>
                     <TwitterIcon size={32} round />
                   </TwitterShareButton>
 
-                  <WhatsappShareButton url={`${SERVICE_URL}/raffles/${raffleId}`} title={`Join this raffle: ${VC_RaffleName}`}>
+                  <WhatsappShareButton url={`${currentUrl}`} title={`Join this raffle: ${VC_RaffleName}`} windowWidth={1920} windowHeight={1080}>
                     <WhatsappIcon size={32} round />
                   </WhatsappShareButton>
                 </div>
