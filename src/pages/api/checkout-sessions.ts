@@ -31,8 +31,8 @@ export default async function handler(
     const charityKey = req.body.charity_key
     const isAgeConfirmed = req.body.isAgeConfirmed
     const isTCConfirmed = req.body.isTCConfirmed
-    const client_ip = req.body.client_ip;
-    const clien_geo = req.body.client_geo;
+    const client_ip = req.body.clientIp;
+    const clien_geo = req.body.clientGeo;
 
     if (!tickets?.length) {
       return res.status(400).json({ error: 'No tickets selected' })
@@ -71,8 +71,9 @@ export default async function handler(
 
     // ---- Custom expiration: only set when >= 30 minutes remain (Stripe rule)
     const THIRTY_MIN = 30 * 60 * 1000
-    const maxExpiresAt = now + 24 * 60 * 60 * 1000 // Stripe max 24h from now
-    const desired = Math.min(salesEnd - 5_000, maxExpiresAt) // end a few seconds early
+    const MINUTES_BUFFER = 5 * 60 * 1000 // 5 minutes buffer
+    const maxExpiresAt = now + (24 * 60 * 60 * 1000) - MINUTES_BUFFER // Stripe max 24h from now
+    const desired = Math.min(salesEnd - 5000, maxExpiresAt) // end a few seconds early
     const expiresAtSeconds =
       desired - now >= THIRTY_MIN ? Math.floor(desired / 1000) : undefined
 

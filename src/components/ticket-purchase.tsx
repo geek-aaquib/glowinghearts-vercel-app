@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { useGeoCheck } from "@/app/hooks/useGeoCheck";
 
 export interface TicketTier {
   Guid_BuyIn: number | string;
@@ -30,123 +31,7 @@ export default function TicketPurchase({
   );
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isTCConfirmed, setisTCConfirmed] = useState(false);
-
-  const [geoBlocked, setGeoBlocked] = useState(false);
-  const [geoReason, setGeoReason] = useState("");
-  const [checkingLocation, setCheckingLocation] = useState(true);
-  const [client_ip, setClientIp] = useState<string | null>(null);
-  const [client_geo, setClientGeo] = useState<string | null>(null);
-
-
-
-
-  useEffect(() => {
-    const checkGeo = async () => {
-      const CACHE_KEY = "geo-checked";
-      const CACHE_TTL = 1000 * 10; // 10 minutes
-
-      try {
-        // Guard: ensure client
-        if (typeof window === "undefined") {
-          setCheckingLocation(false);
-          return;
-        }
-        // Safe read from localStorage
-        let cachedStr: string | null = null;
-        try {
-          cachedStr = localStorage.getItem(CACHE_KEY);
-          console.log("geo cache raw:", cachedStr);
-        } catch (err) {
-          console.warn("localStorage read failed:", err);
-        }
-
-        // If cached and not expired, use it
-        if (cachedStr) {
-          try {
-            const parsed = JSON.parse(cachedStr);
-            if (parsed.expires && parsed.expires > Date.now()) {
-              setGeoBlocked(!!parsed.isBlocked);
-              setGeoReason(parsed.reason || "");
-              setCheckingLocation(false);
-              return;
-            } else {
-              // expired -> remove
-              try { localStorage.removeItem(CACHE_KEY); } catch { }
-            }
-          } catch (err) {
-            // invalid JSON stored (e.g. "Too Many Requests") — remove and continue
-            console.warn("Invalid geo cache, clearing it:", err);
-            try { localStorage.removeItem(CACHE_KEY); } catch { }
-          }
-        }
-
-        const res = await fetch("/api/geo");
-        const data = await res.json();
-        const {
-          country_code,
-          region_code,
-          vpn,          // Only some APIs provide this
-          proxy,
-          hosting,
-          tor,
-          anonymous,
-          ip,
-          region,
-          country,
-          city
-        } = data;
-
-        setClientIp(ip);
-        setClientGeo(city + ' ' + region + ' ' + country);
-        // Basic Ontario check via region_code
-        const isInOntario =
-          country_code === "CA" &&
-          (region_code === "ON" || data.region === "Ontario");
-
-        // Basic VPN/Proxy detection
-        const isUsingVPN = vpn == true || proxy === true || tor === true || hosting === true || anonymous == true;
-
-        const isBlocked = !isInOntario || isUsingVPN;
-        // Cache with TTL (safe write)
-
-        var reason = "";
-        if (isBlocked) {
-          if (!isInOntario) {
-            reason = "This raffle is only available to residents of Ontario.";
-          } else if (isUsingVPN) {
-            reason = "VPN or proxy detected. Please disable it.";
-          }
-          else {
-            reason = "Unusal IP Behaviour detected. Please refresh or use other browser or device."
-          }
-        }
-        const cacheObj = {
-          isBlocked,
-          reason,
-          timestamp: Date.now(),
-          expires: Date.now() + CACHE_TTL,
-        };
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj));
-        } catch (err) {
-          console.warn("localStorage write failed:", err);
-        }
-        setGeoBlocked(isBlocked);
-        setGeoReason(reason);
-      } catch (err) {
-        console.error("Geo check failed:", err);
-        setGeoBlocked(true); // Fallback to block if unknown
-        setGeoReason("Unable to verify your location.");
-      } finally {
-        setCheckingLocation(false);
-      }
-    };
-
-    checkGeo();
-  }, []);
-
-
-
+  const { geoBlocked, geoReason, checkingLocation, clientIp, clientGeo } = useGeoCheck();
 
   const increment = (Guid_BuyIn: string | number) =>
     setCounts((c) => ({ ...c, [Guid_BuyIn]: c[Guid_BuyIn] + 1 }));
@@ -181,8 +66,8 @@ export default function TicketPurchase({
       isTCConfirmed,
       startDate,
       endDate,
-      client_ip,
-      client_geo
+      clientIp,
+      clientGeo
     };
 
     const res = await fetch("/api/checkout-sessions", {
