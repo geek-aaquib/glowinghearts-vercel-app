@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-export default function getCurrentUrl()
+export default function GetCurrentUrl()
 {
     const [currentUrl, setCurrentUrl] = useState("");
 
