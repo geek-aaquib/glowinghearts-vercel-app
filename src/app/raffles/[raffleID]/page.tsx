@@ -57,6 +57,16 @@ export default function RafflePage({ params }: PageProps) {
 
   const { VC_BannerLocation } = bannerData?.[0]?.obj_Banner?.[0];
 
+  // Sorting prizes based on draw date
+  const objPrizesSorted = [...obj_Prizes].sort((a, b) =>
+    (a?.Dt_Draw ?? 0) - (b?.Dt_Draw ?? 0)
+  );
+
+  // sorted based on price values
+  // const objPrizesSortedValues = [...obj_Prizes].sort((a, b) =>
+  //   (b?.Dec_Value ?? 0) - (a?.Dec_Value ?? 0)
+  // );
+
   return (
     <main className="overflow-hidden">
       <GradientBackground />
@@ -85,40 +95,40 @@ export default function RafflePage({ params }: PageProps) {
             {Int_DrawStatus === 2  && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
               {new Date(Dt_SalesOpen) <= new Date() && <div>
                 <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
-                {/* Big raised amount */}
-                <p className="text-5xl font-extrabold tracking-tight sm:text-6xl animate-pulse [animation-duration:1s] text-[#b060ff]">
-                  $<AnimatedNumber end={Dec_MoneyRaised} decimals={0} />
-                </p>
-
-                {/* Smaller “Jackpot” label */}
-                <p className="mt-2 text-2xl font-bold text-gray-600 sm:text-3xl">
-                  Jackpot
-                </p>
-
-                {/* Smaller “Winner” label */}
-                <p className="mt-2 text-sm font-medium text-gray-600">
-                  Winner takes half
-                </p>
-              </div>
-
-              {/* Ticket Sales End Time */}
-              <div className="mt-10 border-t border-gray-200 pt-10">
-                <div className="text-center max-w-xs mx-auto">
-                  <p className="text-xl tracking-tight text-gray-900 sm:text-2xl">
-                    Ticket Sales Ends In
+                  {/* Big raised amount */}
+                  <p className="text-5xl font-extrabold tracking-tight sm:text-6xl animate-pulse [animation-duration:1s] text-[#b060ff]">
+                    $<AnimatedNumber end={Dec_MoneyRaised} decimals={0} />
                   </p>
 
                   {/* Smaller “Jackpot” label */}
-                  <div className="mt-2 text-2xl font-bold sm:text-3xl">
-                    <CountdownTimer endDate={Dt_SalesClose} />
+                  <p className="mt-2 text-2xl font-bold text-gray-600 sm:text-3xl">
+                    Jackpot
+                  </p>
+
+                  {/* Smaller “Winner” label */}
+                  <p className="mt-2 text-sm font-medium text-gray-600">
+                    Winner takes half
+                  </p>
+                </div>
+
+                {/* Ticket Sales End Time */}
+                <div className="mt-10 border-t border-gray-200 pt-10">
+                  <div className="text-center max-w-xs mx-auto">
+                    <p className="text-xl tracking-tight text-gray-900 sm:text-2xl">
+                      Ticket Sales Ends In
+                    </p>
+
+                    {/* Smaller “Jackpot” label */}
+                    <div className="mt-2 text-2xl font-bold sm:text-3xl">
+                      <CountdownTimer endDate={Dt_SalesClose} />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Ticket Purchase */}
-              <div className="mt-10 border-t border-gray-200 pt-10">
-                <TicketPurchase tickets={obj_BuyIns} raffleID={raffleId} charity_key={VC_CharityKey} startDate={Dt_SalesOpen} endDate={Dt_SalesClose} />
-              </div>
+                {/* Ticket Purchase */}
+                <div className="mt-10 border-t border-gray-200 pt-10">
+                  <TicketPurchase tickets={obj_BuyIns} raffleID={raffleId} charity_key={VC_CharityKey} startDate={Dt_SalesOpen} endDate={Dt_SalesClose} />
+                </div>
               </div>}
 
               {new Date(Dt_SalesOpen) > new Date() && <div className="mt-2 text-center text-2xl font-bold sm:text-3xl">
@@ -289,7 +299,7 @@ export default function RafflePage({ params }: PageProps) {
                   <TabPanel className="text-sm text-gray-500">
                     <h3 className="sr-only">Prizes</h3>
 
-                    <PrizesTable prizes={obj_Prizes} />
+                    <PrizesTable prizes={objPrizesSorted} />
                   </TabPanel>
                 </TabPanels>
               </TabGroup>
