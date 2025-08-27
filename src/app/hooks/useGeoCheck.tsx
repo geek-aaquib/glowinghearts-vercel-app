@@ -34,6 +34,8 @@ export function useGeoCheck() {
                         if (parsed.expires && parsed.expires > Date.now()) {
                             setGeoBlocked(!!parsed.isBlocked);
                             setGeoReason(parsed.reason || "");
+                            setClientIp(parsed.ip || null);
+                            setClientGeo(parsed.geo || null);
                             setCheckingLocation(false);
                             return;
                         } else {
@@ -64,8 +66,9 @@ export function useGeoCheck() {
                     city,
                 } = data;
 
+                const geoStr = `${city} ${region} ${country}`;
                 setClientIp(ip);
-                setClientGeo(`${city} ${region} ${country}`);
+                setClientGeo(geoStr);
 
                 const isInOntario =
                     country_code === "CA" &&
@@ -94,6 +97,8 @@ export function useGeoCheck() {
                 const cacheObj = {
                     isBlocked,
                     reason,
+                    ip,
+                    geo: geoStr,
                     timestamp: Date.now(),
                     expires: Date.now() + CACHE_TTL,
                 };

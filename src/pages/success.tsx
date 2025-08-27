@@ -6,6 +6,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { format } from "date-fns"
 
 type Purchase = {
   Guid_RaffleId: string
@@ -122,9 +123,6 @@ export default function SuccessPage() {
   const orderNumber = purchase.Guid_PurchaseId
   const raffleID = purchase.Guid_RaffleId
   const tickets = purchase.tickets || []
-  const purchaseDate = new Date(purchase.Dt_Purchased).toLocaleString('en-CA', {
-    dateStyle: 'long', timeStyle: 'short',
-  })
 
   return (
     <>
@@ -132,10 +130,10 @@ export default function SuccessPage() {
         <title>Success - Glowing Hearts Fundraising</title>
         <meta name="description" content="Thank you for your purchase!" />
         <link
-            rel="icon"
-            href="/logos/icon.svg"// Path to your custom favicon
-            type="image/svg+xml"
-          />
+          rel="icon"
+          href="/logos/icon.svg"// Path to your custom favicon
+          type="image/svg+xml"
+        />
       </Head>
       <main className="overflow-hidden">
         <GradientBackground />
@@ -150,7 +148,7 @@ export default function SuccessPage() {
           <h1 className="text-center text-3xl font-bold text-green-600">Thank you for your purchase!</h1>
           <p className="text-center text-gray-700">
             Your Order (Purchase ID) <span className="font-mono font-bold text-black">{orderNumber}</span> was confirmed on{' '}
-            <time dateTime={new Date(purchase.Dt_Purchased).toISOString()}>{purchaseDate}</time>.
+            <time dateTime={format(new Date(purchase.Dt_Purchased), 'MM d yyyy, h:mm a')}>{format(new Date(purchase.Dt_Purchased), 'MM d yyyy, h:mm a')}</time>.
           </p>
 
           {/* Order + Buyer */}

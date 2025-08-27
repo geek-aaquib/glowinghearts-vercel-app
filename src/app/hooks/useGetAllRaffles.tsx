@@ -12,7 +12,7 @@ const fetcher = async (url) => {
 };
 
 export default function useGetAllRaffles() {
-  const getAllRaffleUrl = `${SERVICE_URL}/RaffleList/0/100`;
+  const getAllRaffleUrl = `${SERVICE_URL}/Raffle/List/0/100`;
 
   const { data, error, isLoading } = useSWR(getAllRaffleUrl, fetcher, {
     revalidateOnFocus: false,

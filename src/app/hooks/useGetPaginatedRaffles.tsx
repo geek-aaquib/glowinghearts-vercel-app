@@ -10,7 +10,7 @@ const fetcher = async (url: string) => {
 
 export default function useGetPaginatedRaffles(page: number, perPage = 3) {
   const offset = (page - 1) * perPage
-  const url = `${SERVICE_URL}/RaffleList/${offset}/${perPage}`
+  const url = `${SERVICE_URL}/Raffle/List/${offset}/${perPage}`
 
   const { data, error, isLoading } = useSWR(url, fetcher, {
     revalidateOnFocus: false,

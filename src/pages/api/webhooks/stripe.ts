@@ -19,6 +19,12 @@ function safeJson<T>(v: string | undefined, fb: T): T {
     return fb
   }
 }
+function toLocalDateTimeString(d: Date, timeZone = 'America/Toronto') {
+  return d.toLocaleString('sv-SE', { // ISO-like format
+    timeZone,
+    hour12: false
+  }).replace('T', ' ')
+}
 async function fetchWithTimeout(
   input: RequestInfo,
   init: RequestInit = {},
@@ -80,7 +86,6 @@ export default async function handler(
     const Guid_PurchaseId = session.id // idempotent: use session.id
     const customer = session.customer_details
     const amount = session.amount_total || 0
-    const createdISO = new Date(session.created * 1000).toISOString()
     const obj_BuyIns = safeJson(session.metadata?.obj_BuyIns, [])
     const isAgeConfirmed = session.metadata?.isAgeConfirmed
     const isTCConfirmed = session.metadata?.isTCConfirmed
@@ -101,11 +106,46 @@ export default async function handler(
     if (!piId)
       console.warn('⚠️ No PaymentIntent on session', { sessionId: session.id })
 
+    // Fetch the PaymentIntent with the latest charge + its balance_tx expanded
+    const pi = await stripe.paymentIntents.retrieve(
+
+      piId!,
+
+      { expand: ['latest_charge.balance_transaction'] },
+
+      accountId ? { stripeAccount: accountId } : undefined
+
+    )
+
+    // Narrow the types a bit
+    const latestCharge = pi.latest_charge as Stripe.Charge | null
+    const balTx = latestCharge?.balance_transaction as Stripe.BalanceTransaction | string | null
+
+    // Best-effort paidAt time (Unix seconds)
+    let paidAtUnix: number | undefined
+
+    // 1) Prefer the BalanceTransaction.created (time Stripe recorded funds movement)
+    if (balTx && typeof balTx !== 'string' && typeof balTx.created === 'number') {
+      paidAtUnix = balTx.created
+    }
+    // 2) Else use the Charge.created (creation/capture time for automatic capture)
+    else if (latestCharge && typeof latestCharge.created === 'number') {
+      paidAtUnix = latestCharge.created
+    }
+    // 3) Else fall back to the webhook event time
+    else {
+      paidAtUnix = event.created
+    }
+
+    // Format as UTC ISO, or your DB-friendly “YYYY-MM-DD HH:mm:ss”
+    const paidAtISO = toLocalDateTimeString(new Date(paidAtUnix * 1000))
+    const dtPurchased = paidAtISO.replace('T', ' ').slice(0, 19)
+
     const payload = {
       Guid_RaffleId: raffleID,
       Guid_PurchaseId,
       Guid_IntentId: piId,
-      Dt_Purchased: createdISO.replace('T', ' ').slice(0, 19),
+      Dt_Purchased: dtPurchased,
       Dec_PurchaseAmount: amount / 100,
       VC_PlayerEmail: customer?.email ?? '',
       VC_PlayerFullName: fullName,
@@ -129,7 +169,7 @@ export default async function handler(
     )
     // 3) CRITICAL: time-box this call; return 4xx on any failure so Stripe retries
     const resp = await fetchWithTimeout(
-      `${SERVICE_URL}/Sale/${raffleID}`,
+      `${SERVICE_URL}/Purchase/Sale/${raffleID}`,
       {
         method: 'POST',
         headers: {

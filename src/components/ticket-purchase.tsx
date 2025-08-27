@@ -66,8 +66,8 @@ export default function TicketPurchase({
       isTCConfirmed,
       startDate,
       endDate,
-      clientIp,
-      clientGeo
+      clientIp: clientIp,
+      clientGeo: clientGeo
     };
 
     const res = await fetch("/api/checkout-sessions", {
