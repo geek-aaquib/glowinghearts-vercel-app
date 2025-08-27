@@ -92,6 +92,7 @@ export default function RafflePage({ params }: PageProps) {
             </div>
 
             {/* Raffle details */}
+            {/* Status --- Active*/}
             {Int_DrawStatus === 2  && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
               {new Date(Dt_SalesOpen) <= new Date() && <div>
                 <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
@@ -137,6 +138,7 @@ export default function RafflePage({ params }: PageProps) {
 
 
             </div>}
+            {/* Raffle Status 1 --- (Not Active) */}
             {Int_DrawStatus === 1 && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
               <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
                 {/* Big raised amount */}
@@ -152,7 +154,6 @@ export default function RafflePage({ params }: PageProps) {
               </div>
               {/* Ticket Sales End Time */}
               <div className="mt-10 border-t border-gray-200 pt-10">
-                <TicketPurchase tickets={obj_BuyIns} raffleID={raffleId} charity_key={VC_CharityKey} startDate={Dt_SalesOpen} endDate={Dt_SalesClose} />
                 <div className="text-center max-w-xs mx-auto">
                   <p className="text-xl font-bold tracking-tight text-gray-900">
                     Raffle Not Started
@@ -161,6 +162,7 @@ export default function RafflePage({ params }: PageProps) {
               </div>
             </div>}
 
+              {/* Status 3, 4, 5 --- Complete */}
             {(Int_DrawStatus === 3 || Int_DrawStatus === 4 || Int_DrawStatus === 5) && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
               <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
                 {/* Big raised amount */}
@@ -184,6 +186,7 @@ export default function RafflePage({ params }: PageProps) {
               </div>
             </div>}
 
+              {/* Status 6 --- On Hold */}
             {Int_DrawStatus === 6 && <div className="mx-auto mt-14 max-w-2xl sm:mt-16 lg:col-span-2 lg:row-span-2 lg:row-end-2 lg:mt-0 lg:max-w-none">
               <div className="text-center p-6 bg-[{raffle.primary_color}] rounded-2xl border-2 border-gray-300 text-[#{raffle.font_color}] max-w-xs mx-auto">
                 RAFFLE ON HOLD. The Raffle details cannot be retrieved at the moment.

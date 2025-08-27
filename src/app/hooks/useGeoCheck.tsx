@@ -51,7 +51,6 @@ export function useGeoCheck() {
                 const res = await fetch("/api/geo");
                 const data = await res.json();
 
-                console.log(data)
                 const {
                     country_code,
                     region_code,
