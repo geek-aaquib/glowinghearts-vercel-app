@@ -20,7 +20,7 @@ import { ArrowPathIcon, CloudArrowUpIcon, FingerPrintIcon, LockClosedIcon } from
 
 export const metadata: Metadata = {
   description:
-    'Glowing Hearts is a nonprofit fundraising platform that helps organizations raise more money with less effort through secure 50/50 raffles.',
+    '50/50 Win Win is a nonprofit fundraising platform that helps organizations raise more money with less effort through secure 50/50 raffles.',
 }
 
 function Hero() {
@@ -34,7 +34,7 @@ function Hero() {
               href="/how-it-works"
               className="flex items-center gap-1 rounded-full bg-fuchsia-950/35 px-3 py-0.5 text-sm/6 font-medium text-white data-hover:bg-fuchsia-950/30"
             >
-              How Glowing Hearts helps nonprofits meet their fundraising goals
+              How 50/50 Win Win helps nonprofits meet their fundraising goals
               <ChevronRightIcon className="size-4" />
             </Link>
           }
