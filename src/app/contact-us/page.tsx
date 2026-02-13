@@ -179,7 +179,7 @@ function Contact() {
                 </dt>
                 <dd>
                   <a href="mailto:info@glowingheartsfundraising.ca" className="hover:text-gray-900">
-                    info@glowingheartsfundraising.ca
+                    info@5050winwin.ca
                   </a>
                 </dd>
               </div>
