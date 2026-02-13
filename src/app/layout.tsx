@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Glowing Hearts Fundraising',
-    default: 'Glowing Hearts Fundraising - Your Fundraising Partner',
+    template: '%s - 5050WinWin',
+    default: '50/50 Win Win - Your Fundraising Partner',
   },
 }
 
