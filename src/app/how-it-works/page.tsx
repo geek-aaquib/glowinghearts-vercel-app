@@ -10,7 +10,7 @@ function HowItWorks() {
       <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
         <h2 className="text-base/7 font-semibold text-indigo-600">Raise funds faster</h2>
         <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-950 sm:text-5xl">
-          How Glowing Hearts 50/50 Raffles Work
+          How 50/50 Win Win Raffles Work
         </p>
         <p className="mt-3 text-md text-grey-300">Turn your next fundraising campaign into a seamless, engaging experience. From securing your license to celebrating the winner, our five-step process makes it easy—so you can focus on making an impact.</p>
         <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
@@ -148,7 +148,7 @@ function StandOut() {
       <h2 className="sr-only">Our perks</h2>
       <div className="mx-auto max-w-7xl py-24 sm:px-2 sm:py-32 lg:px-4">
         <p className="mt-2 text-4xl text-center font-semibold tracking-tight text-pretty text-gray-950 sm:text-4xl">
-          Why Glowing Hearts Stands Out
+          Why 50/50 Win Win Stands Out
         </p>
         <p className="mt-5 mb-20 text-md text-center text-grey-300">Beyond the core steps, our platform offers:</p>
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-12 px-4 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
