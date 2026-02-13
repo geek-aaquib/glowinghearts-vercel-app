@@ -227,7 +227,7 @@ function Features() {
             Everything you need to run your 50/50 raffles
           </p>
           <p className="mt-6 text-lg/8 text-gray-700">
-            At Glowing Hearts, we’ve built an end-to-end 50/50 raffle solution so you can focus on your cause—while we handle everything from licensing to promotion and communications. Here’s why organizations trust us to power their next big raffle:
+            At 50/50 Win Win, we’ve built an end-to-end 50/50 raffle solution so you can focus on your cause—while we handle everything from licensing to promotion and communications. Here’s why organizations trust us to power their next big raffle:
           </p>
         </div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
