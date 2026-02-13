@@ -136,7 +136,7 @@ function SocialLinks() {
 function Copyright() {
   return (
     <div className="text-sm/6 text-gray-950">
-      &copy; {new Date().getFullYear()} Glowing Hearts Fundraising. All rights.
+      &copy; {new Date().getFullYear()} 50/50 Win Win. All rights.
     </div>
   )
 }
