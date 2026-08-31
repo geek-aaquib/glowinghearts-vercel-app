@@ -156,9 +156,9 @@ function Contact() {
                   <BuildingOffice2Icon aria-hidden="true" className="h-7 w-6 text-gray-400" />
                 </dt>
                 <dd>
-                  2295 Battleford Rd
+                  146 Thirtieth St
                   <br />
-                  Mississauga, ON, L5N 2W8
+                  Etobicoke, ON M8W 3C4
                 </dd>
               </div>
               <div className="flex gap-x-4">
@@ -178,7 +178,7 @@ function Contact() {
                   <EnvelopeIcon aria-hidden="true" className="h-7 w-6 text-gray-400" />
                 </dt>
                 <dd>
-                  <a href="mailto:info@glowingheartsfundraising.ca" className="hover:text-gray-900">
+                  <a href="mailto:info@5050winwin.ca" className="hover:text-gray-900">
                     info@5050winwin.ca
                   </a>
                 </dd>
